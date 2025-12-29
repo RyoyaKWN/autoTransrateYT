@@ -64,8 +64,10 @@ function startRecognition() {
     if (!result || result.length === 0) return;
     const text = result[0].transcript;
     const messageType = result.isFinal ? "asr-final" : "asr-partial";
-    chrome.runtime.sendMessage({ type: messageType, text });
+    const translated = translateText(text);
+    chrome.runtime.sendMessage({ type: messageType, text, translated });
     log(`${messageType}: ${text}`);
+    log(`translate: ${translated}`);
   };
 
   recognition.onerror = (event) => {
@@ -85,6 +87,34 @@ function startRecognition() {
     chrome.runtime.sendMessage({ type: "asr-error", message: String(e) });
     log(`asr error: ${String(e)}`);
   }
+}
+
+function translateText(input) {
+  const dict = {
+    hello: "こんにちは",
+    hi: "こんにちは",
+    thanks: "ありがとう",
+    thank: "ありがとう",
+    you: "あなた",
+    today: "今日",
+    video: "動画",
+    computer: "コンピュータ",
+    file: "ファイル",
+    open: "開く",
+    close: "閉じる",
+    click: "クリック",
+    button: "ボタン",
+    start: "開始",
+    stop: "停止"
+  };
+
+  const words = input.split(/\s+/).filter(Boolean);
+  const translated = words.map((word) => {
+    const key = word.toLowerCase().replace(/[^a-z]/g, "");
+    if (key && dict[key]) return dict[key];
+    return word;
+  });
+  return translated.join(" ");
 }
 
 startAsrBtn?.addEventListener("click", async () => {

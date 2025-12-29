@@ -134,9 +134,15 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
   if (msg.type === "asr-partial") {
     console.log("asr partial", msg.text ?? "(no text)");
+    if (msg.translated) {
+      console.log("asr partial translated", msg.translated);
+    }
   }
   if (msg.type === "asr-final") {
     console.log("asr final", msg.text ?? "(no text)");
+    if (msg.translated) {
+      console.log("asr final translated", msg.translated);
+    }
   }
   if (msg.type === "asr-error") {
     console.log("asr error", msg.message ?? "(no message)");
