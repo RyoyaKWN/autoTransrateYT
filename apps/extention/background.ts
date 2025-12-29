@@ -1,5 +1,18 @@
 let port: chrome.runtime.Port | null = null;
 
+function isYouTubeUrl(url: string | undefined): boolean {
+  if (!url) return false;
+  return url.startsWith("https://www.youtube.com/") || url.startsWith("https://youtu.be/");
+}
+
+function logCurrentTab(tabId: number) {
+  chrome.tabs.get(tabId, (tab) => {
+    const url = tab.url;
+    const isYouTube = isYouTubeUrl(url);
+    console.log("current tab:", { tabId, url, isYouTube });
+  });
+}
+
 function connectHost() {
   if (port) return;
 
@@ -37,3 +50,13 @@ chrome.runtime.onStartup.addListener(() => {
 
 // Service workerが起動したタイミングでも接続（確実）
 connectHost();
+
+chrome.tabs.onActivated.addListener((activeInfo) => {
+  logCurrentTab(activeInfo.tabId);
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.url) {
+    logCurrentTab(tabId);
+  }
+});
