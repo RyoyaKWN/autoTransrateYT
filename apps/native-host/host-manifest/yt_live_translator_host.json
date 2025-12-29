@@ -1,7 +1,7 @@
 {
     "name": "yt_live_translator_host",
     "description": "YT Live Translator Native Host",
-    "path": "C:\\Users\\ryoya\\Desktop\\work\\autoTransrateYT\\apps\\native-host\\YtLiveTranslator.NativeHost\\bin\\Release\\net8.0\\win-x64\\publish\\YtLiveTranslator.NativeHost.exe",
+    "path": "C:\\Users\\ryoya\\Desktop\\work\\autoTransrateYT\\apps\\native-host\\YtLiveTranslator.NativeHost\\bin\\Debug\\net8.0\\YtLiveTranslator.NativeHost.exe",
     "type": "stdio",
     "allowed_origins": [
     "chrome-extension://pfpgbkebifmcpagmpcfhlddjdlglclnj/"]
