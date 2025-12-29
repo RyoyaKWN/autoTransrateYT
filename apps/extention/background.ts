@@ -20,13 +20,20 @@ function connectHost() {
   port = chrome.runtime.connectNative("yt_live_translator_host");
 
   port.onMessage.addListener((msg) => {
-    console.log("from host (raw):", msg);
-    if (msg && msg.type === "pong") {
+    const type = msg && msg.type ? msg.type : "(no type)";
+    if (type === "pong") {
       console.log("pong received:", msg.at ?? "(no timestamp)");
+      return;
     }
-    try {
-      console.log("from host (json):", JSON.stringify(msg));
-    } catch {}
+    if (type === "asr-partial") {
+      console.log("asr partial (host)", msg.text ?? "(no text)");
+      return;
+    }
+    if (type === "asr-final") {
+      console.log("asr final (host)", msg.text ?? "(no text)");
+      return;
+    }
+    console.log("from host", type);
   });
 
   port.onDisconnect.addListener(() => {
@@ -71,11 +78,13 @@ async function ensureOffscreenDocument() {
     return;
   }
   const hasDoc = await chrome.offscreen.hasDocument();
-  if (hasDoc) return;
+  if (hasDoc) {
+    await chrome.offscreen.closeDocument();
+  }
   await chrome.offscreen.createDocument({
     url: "offscreen.html",
-    reasons: ["USER_MEDIA"],
-    justification: "Capture tab audio for ASR checks."
+    reasons: ["USER_MEDIA", "AUDIO_PLAYBACK"],
+    justification: "Capture tab audio for ASR and keep playback audible."
   });
 }
 
@@ -90,6 +99,7 @@ async function startAudioCapture(tabId: number, url: string | undefined) {
     chrome.runtime.sendMessage({ type: "start-capture", streamId });
     isCapturing = true;
     console.log("capture start requested", { tabId });
+    unmuteTabIfCaptured(tabId);
   } catch (e) {
     console.log("capture start failed", e);
   }
@@ -100,6 +110,7 @@ function stopAudioCapture() {
   chrome.runtime.sendMessage({ type: "stop-capture" });
   isCapturing = false;
   console.log("capture stop requested");
+  sendAudioStop();
 }
 
 chrome.runtime.onMessage.addListener((msg) => {
@@ -119,12 +130,46 @@ chrome.runtime.onMessage.addListener((msg) => {
     stopAudioCapture();
     return;
   }
+  if (msg.type === "audio-chunk") {
+    if (!port) {
+      console.log("audio chunk dropped: no native host connection");
+      return;
+    }
+    port.postMessage({
+      type: "audio-chunk",
+      sampleRate: msg.sampleRate,
+      pcmBase64: msg.pcmBase64
+    });
+    return;
+  }
+  if (msg.type === "audio-stats") {
+    console.log("audio stats", { chunks: msg.chunks, sampleRate: msg.sampleRate, level: msg.level });
+    return;
+  }
+  if (msg.type === "audio-playback-started") {
+    console.log("audio playback started");
+    return;
+  }
+  if (msg.type === "audio-playback-error") {
+    console.log("audio playback error", msg.message ?? "(no message)");
+    return;
+  }
+  if (msg.type === "audio-context-ready") {
+    console.log("audio context ready", { sampleRate: msg.sampleRate });
+    return;
+  }
   if (msg.type === "capture-started") {
     console.log("capture started", { trackCount: msg.trackCount });
+    if (port) {
+      port.postMessage({ type: "audio-start", at: new Date().toISOString() });
+    }
   }
   if (msg.type === "capture-error") {
     console.log("capture error", msg.message ?? "(no message)");
     isCapturing = false;
+  }
+  if (msg.type === "audio-error") {
+    console.log("audio error", msg.message ?? "(no message)");
   }
   if (msg.type === "asr-warning") {
     console.log("asr warning", msg.message ?? "(no message)");
@@ -148,3 +193,18 @@ chrome.runtime.onMessage.addListener((msg) => {
     console.log("asr error", msg.message ?? "(no message)");
   }
 });
+
+function sendAudioStop() {
+  if (port) {
+    port.postMessage({ type: "audio-stop", at: new Date().toISOString() });
+  }
+}
+
+function unmuteTabIfCaptured(tabId: number) {
+  chrome.tabs.get(tabId, (tab) => {
+    const mutedInfo = tab.mutedInfo;
+    if (!mutedInfo || !mutedInfo.muted) return;
+    if (mutedInfo.reason !== "capture") return;
+    chrome.tabs.update(tabId, { muted: false });
+  });
+}
