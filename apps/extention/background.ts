@@ -1,4 +1,5 @@
 let port: chrome.runtime.Port | null = null;
+let isCapturing = false;
 
 function isYouTubeUrl(url: string | undefined): boolean {
   if (!url) return false;
@@ -31,8 +32,8 @@ function connectHost() {
   port.onDisconnect.addListener(() => {
     const err = chrome.runtime.lastError;
     console.log("host disconnected", err ? err.message : "(no lastError)");
-  port = null;
-});
+    port = null;
+  });
 
   // 少し遅らせてping（タイミング問題回避）
   setTimeout(() => {
@@ -62,4 +63,65 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.url) {
     logCurrentTab(tabId);
   }
+});
+
+async function ensureOffscreenDocument() {
+  if (!chrome.offscreen) {
+    console.log("offscreen api not available");
+    return;
+  }
+  const hasDoc = await chrome.offscreen.hasDocument();
+  if (hasDoc) return;
+  await chrome.offscreen.createDocument({
+    url: "offscreen.html",
+    reasons: ["USER_MEDIA"],
+    justification: "Capture tab audio for ASR checks."
+  });
+}
+
+async function startAudioCapture(tabId: number, url: string | undefined) {
+  if (!isYouTubeUrl(url)) {
+    console.log("capture skipped: not a YouTube tab", { tabId, url });
+    return;
+  }
+  await ensureOffscreenDocument();
+  try {
+    const streamId = await chrome.tabCapture.getMediaStreamId({ targetTabId: tabId });
+    chrome.runtime.sendMessage({ type: "start-capture", streamId });
+    isCapturing = true;
+    console.log("capture start requested", { tabId });
+  } catch (e) {
+    console.log("capture start failed", e);
+  }
+}
+
+function stopAudioCapture() {
+  if (!isCapturing) return;
+  chrome.runtime.sendMessage({ type: "stop-capture" });
+  isCapturing = false;
+  console.log("capture stop requested");
+}
+
+chrome.runtime.onMessage.addListener((msg) => {
+  if (!msg || !msg.type) return;
+  if (msg.type === "capture-started") {
+    console.log("capture started", { trackCount: msg.trackCount });
+  }
+  if (msg.type === "capture-error") {
+    console.log("capture error", msg.message ?? "(no message)");
+    isCapturing = false;
+  }
+});
+
+chrome.action.onClicked.addListener(async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab || !tab.id) {
+    console.log("capture skipped: no active tab");
+    return;
+  }
+  if (isCapturing) {
+    stopAudioCapture();
+    return;
+  }
+  startAudioCapture(tab.id, tab.url);
 });

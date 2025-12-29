@@ -3,7 +3,7 @@
     "name": "YT Live Translator",
     "version": "0.0.1",
     "permissions": [
-    "tabs", "tabCapture", "nativeMessaging"],
+    "tabs", "tabCapture", "nativeMessaging", "offscreen"],
     "host_permissions": [
         "https://www.youtube.com/*",
         "https://youtu.be/*"
