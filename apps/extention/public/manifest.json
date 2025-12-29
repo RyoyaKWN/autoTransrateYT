@@ -8,6 +8,6 @@
         "https://www.youtube.com/*",
         "https://youtu.be/*"
     ],
-    "action": { "default_title": "YT Live Translator" },
+    "action": { "default_title": "YT Live Translator", "default_popup": "popup.html" },
     "background": { "service_worker": "background.js" }
 }

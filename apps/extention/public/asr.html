@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YT Live Translator ASR</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        margin: 16px;
+      }
+      button {
+        margin-right: 8px;
+      }
+      #log {
+        margin-top: 12px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        height: 240px;
+        overflow: auto;
+        font-size: 12px;
+        background: #f7f7f7;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <button id="startAsr">Start ASR (Microphone)</button>
+      <button id="stopAsr">Stop ASR</button>
+    </div>
+    <div id="log"></div>
+    <script src="asr.js"></script>
+  </body>
+</html>

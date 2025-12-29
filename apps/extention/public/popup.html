@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YT Live Translator</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        margin: 12px;
+        min-width: 280px;
+      }
+      button {
+        margin: 4px 0;
+        width: 100%;
+      }
+      #log {
+        margin-top: 8px;
+        padding: 6px;
+        border: 1px solid #ccc;
+        height: 90px;
+        overflow: auto;
+        font-size: 12px;
+        background: #f7f7f7;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <button id="startCapture">Start Capture (Tab Audio)</button>
+      <button id="stopCapture">Stop Capture</button>
+    </div>
+    <div>
+      <button id="openAsr">Open ASR Tab (Microphone)</button>
+    </div>
+    <div id="log"></div>
+    <script src="popup.js"></script>
+  </body>
+</html>

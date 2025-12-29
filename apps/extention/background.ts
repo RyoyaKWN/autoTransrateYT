@@ -104,6 +104,21 @@ function stopAudioCapture() {
 
 chrome.runtime.onMessage.addListener((msg) => {
   if (!msg || !msg.type) return;
+  if (msg.type === "ui-start-capture") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tab = tabs[0];
+      if (!tab || !tab.id) {
+        console.log("capture skipped: no active tab");
+        return;
+      }
+      startAudioCapture(tab.id, tab.url);
+    });
+    return;
+  }
+  if (msg.type === "ui-stop-capture") {
+    stopAudioCapture();
+    return;
+  }
   if (msg.type === "capture-started") {
     console.log("capture started", { trackCount: msg.trackCount });
   }
@@ -111,17 +126,19 @@ chrome.runtime.onMessage.addListener((msg) => {
     console.log("capture error", msg.message ?? "(no message)");
     isCapturing = false;
   }
-});
-
-chrome.action.onClicked.addListener(async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab || !tab.id) {
-    console.log("capture skipped: no active tab");
-    return;
+  if (msg.type === "asr-warning") {
+    console.log("asr warning", msg.message ?? "(no message)");
   }
-  if (isCapturing) {
-    stopAudioCapture();
-    return;
+  if (msg.type === "asr-started") {
+    console.log("asr started");
   }
-  startAudioCapture(tab.id, tab.url);
+  if (msg.type === "asr-partial") {
+    console.log("asr partial", msg.text ?? "(no text)");
+  }
+  if (msg.type === "asr-final") {
+    console.log("asr final", msg.text ?? "(no text)");
+  }
+  if (msg.type === "asr-error") {
+    console.log("asr error", msg.message ?? "(no message)");
+  }
 });
