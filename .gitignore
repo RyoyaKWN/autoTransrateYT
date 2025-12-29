@@ -13,3 +13,6 @@
 # OS
 Thumbs.db
 .DS_Store
+
+# AGENT
+AGENT.md
