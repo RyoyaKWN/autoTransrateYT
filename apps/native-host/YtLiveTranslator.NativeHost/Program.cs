@@ -79,8 +79,16 @@ class Program
 
                 Log("Received: " + message);
 
-                WriteMessage(output, new { ok = true, echo = message, at = DateTimeOffset.Now.ToString("o") });
-                Log("Reply sent.");
+                if (TryReadMessageType(message, out var type) && type == "ping")
+                {
+                    WriteMessage(output, new { type = "pong", at = DateTimeOffset.Now.ToString("o") });
+                    Log("Reply sent: pong.");
+                }
+                else
+                {
+                    WriteMessage(output, new { ok = true, echo = message, at = DateTimeOffset.Now.ToString("o") });
+                    Log("Reply sent: echo.");
+                }
             }
         }
         catch (Exception ex)
@@ -90,5 +98,22 @@ class Program
         }
 
         Log("NativeHost exiting.");
+    }
+
+    static bool TryReadMessageType(string json, out string type)
+    {
+        type = string.Empty;
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.ValueKind != JsonValueKind.Object) return false;
+            if (!doc.RootElement.TryGetProperty("type", out var typeElement)) return false;
+            type = typeElement.GetString() ?? string.Empty;
+            return type.Length > 0;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

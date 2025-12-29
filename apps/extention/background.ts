@@ -19,11 +19,14 @@ function connectHost() {
   port = chrome.runtime.connectNative("yt_live_translator_host");
 
   port.onMessage.addListener((msg) => {
-  console.log("from host (raw):", msg);
-  try {
-    console.log("from host (json):", JSON.stringify(msg));
-  } catch {}
-});
+    console.log("from host (raw):", msg);
+    if (msg && msg.type === "pong") {
+      console.log("pong received:", msg.at ?? "(no timestamp)");
+    }
+    try {
+      console.log("from host (json):", JSON.stringify(msg));
+    } catch {}
+  });
 
   port.onDisconnect.addListener(() => {
     const err = chrome.runtime.lastError;
