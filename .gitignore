@@ -1,0 +1,15 @@
+# .NET build artifacts
+**/bin/
+**/obj/
+
+# Node build artifacts
+**/node_modules/
+**/dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store

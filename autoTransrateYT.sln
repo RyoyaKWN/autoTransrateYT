@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{1787FE1D-075E-9E68-7218-25F1BD1BBEAB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "desktop", "desktop", "{BEEBFA7C-7F97-CB0F-CEE6-EE38567484E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YtLiveTranslator.Desktop", "apps\desktop\YtLiveTranslator.Desktop\YtLiveTranslator.Desktop.csproj", "{E9425ACE-7AAB-FDE3-8401-EC42335BFD7C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E9425ACE-7AAB-FDE3-8401-EC42335BFD7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9425ACE-7AAB-FDE3-8401-EC42335BFD7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9425ACE-7AAB-FDE3-8401-EC42335BFD7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9425ACE-7AAB-FDE3-8401-EC42335BFD7C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BEEBFA7C-7F97-CB0F-CEE6-EE38567484E9} = {1787FE1D-075E-9E68-7218-25F1BD1BBEAB}
+		{E9425ACE-7AAB-FDE3-8401-EC42335BFD7C} = {BEEBFA7C-7F97-CB0F-CEE6-EE38567484E9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ADB6D004-8237-4B0D-91AC-D77FBA25C0A3}
+	EndGlobalSection
+EndGlobal
